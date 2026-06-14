@@ -398,8 +398,8 @@ color:white;
 
 .btn-secondary{
 
-background:#6b7280;
-color:white;
+   background:#6b7280;
+   color:white;
 
 }
 
@@ -454,11 +454,10 @@ text-align:left;
 
 th{
 
-background:var(--primary);
-color:white;
-
-position:sticky;
-top:0;
+   background:var(--primary);
+   color:white;
+   position:sticky;
+   top:0;
 
 }
 
