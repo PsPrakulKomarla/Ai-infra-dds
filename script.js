@@ -3207,7 +3207,13 @@ document.addEventListener(
 "DOMContentLoaded",
 DDS.init
 );
-
+window.addEventListener("pageshow", () => {
+    if (
+        document.getElementById("totalReports")
+    ) {
+        DDS.dashboard.refreshDashboard();
+    }
+});
 /* ==========================================
    STORAGE SYNC
 ========================================== */
@@ -3333,6 +3339,7 @@ if (document.getElementById("citySeverityChart")) {
     });
 
 }
+
 function showMap(type){
 
 document.getElementById("damageMap").style.display="none";
@@ -3358,3 +3365,11 @@ if(type==="overlay"){
     document.getElementById("overlayBtn").classList.add("active");
 }
 }
+const glow = document.getElementById("cursor-glow");
+
+document.addEventListener("mousemove",(e)=>{
+    if(glow){
+        glow.style.left = e.clientX + "px";
+        glow.style.top = e.clientY + "px";
+    }
+});

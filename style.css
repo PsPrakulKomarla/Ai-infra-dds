@@ -38,13 +38,29 @@ font-family:'Poppins',sans-serif;
 
 body{
 
-background:var(--bg);
+background:
+
+radial-gradient(
+circle at top right,
+rgba(14, 55, 143, 0.18),
+transparent 35%
+),
+
+radial-gradient(
+circle at bottom left,
+rgba(6,182,212,0.12),
+transparent 35%
+),
+
+var(--bg);
+
 color:var(--text);
 
 min-height:100vh;
 
-}
+overflow-x:hidden;
 
+}
 /* ==========================================
    OFFLINE
 ========================================== */
@@ -202,25 +218,30 @@ color:white;
 /* ==========================================
    CARDS
 ========================================== */
-
 .card{
+    background: rgba(15,23,42,0.75);
+    backdrop-filter: blur(12px);
+    padding: 20px;
+    margin: 15px;
 
-background:var(--card);
+    border-radius: 18px;
 
-padding:20px;
+    border: 1px solid rgba(0,140,255,0.15);
 
-margin:15px;
+    box-shadow:
+        0 8px 32px rgba(0,0,0,0.35),
+        0 0 20px rgba(0,140,255,0.08);
 
-border-radius:12px;
-
-box-shadow:var(--shadow);
-
+    transition: all .35s ease;
 }
+.card:hover{
+    transform: translateY(-6px);
 
-.section-title{
+    border-color: rgba(0,140,255,0.35);
 
-margin:20px;
-
+    box-shadow:
+        0 12px 40px rgba(0,0,0,0.4),
+        0 0 35px rgba(0,140,255,0.25);
 }
 
 /* ==========================================
@@ -426,6 +447,15 @@ background:#111827;
     padding:12px 20px;
     border:none;
     border-radius:12px; 
+    cursor:pointer;
+    background:#1f2937;
+    color:white;
+    transition:0.3s;
+}
+.map-tabs button{
+    padding:12px 20px;
+    border:none;
+    border-radius:12px;
     cursor:pointer;
     background:#1f2937;
     color:white;
@@ -887,21 +917,15 @@ height: 350px;
 }
 
 .dashboard-card{
-    background: rgba(17,24,39,0.75);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 24px;
-    padding: 24px;
-    box-shadow:
-      0 8px 32px rgba(0,0,0,.35),
-      inset 0 1px 0 rgba(255,255,255,.08);
-    transition: all .3s ease;
+    background:#111827;
+    border:1px solid #1e293b;
+    border-radius:18px;
+    padding:20px;
+    box-shadow:0 8px 25px rgba(0,0,0,.35);
 }
 
-.dashboard-card:hover{
-    transform: translateY(-5px);
-    box-shadow:
-      0 20px 50px rgba(37,99,235,.25);
+.dashboard-card h3{
+    margin-bottom:15px;
 }
 @media(max-width:768px){
 
@@ -978,44 +1002,24 @@ height: 350px;
     border-radius:10px;
     cursor:pointer;
 }
-body{
-    background:
-    radial-gradient(circle at top left,#2563eb22,transparent 30%),
-    radial-gradient(circle at bottom right,#06b6d422,transparent 30%),
-    #030712;
+#cursor-glow{
+    position: fixed;
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    pointer-events: none;
 
-    color:white;
-}
-.navbar{
-    backdrop-filter: blur(20px);
-    background: rgba(10,15,25,.8);
-    border-bottom:1px solid rgba(255,255,255,.08);
-}
-.stat-card{
-    background: linear-gradient(
-      135deg,
-      #111827,
-      #1e293b
+    background: radial-gradient(
+        circle,
+        rgba(0,140,255,0.20) 0%,
+        rgba(0,140,255,0.10) 35%,
+        transparent 70%
     );
 
-    border-radius:20px;
-    transition:.3s;
+    transform: translate(-50%, -50%);
+    z-index: 0;
 }
 
-.stat-card:hover{
-    transform:translateY(-6px);
-}
-.dashboard-card{
-    animation:fadeUp .5s ease;
-}
-
-@keyframes fadeUp{
-from{
-opacity:0;
-transform:translateY(20px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
+body{
+    overflow-x: hidden;
 }
