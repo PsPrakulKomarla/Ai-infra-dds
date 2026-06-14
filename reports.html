@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Reports | AI Infrastructure DDS</title>
+
+<link rel="stylesheet"
+href="style.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</head>
+
+<body>
+
+<div id="offlineBanner"
+class="offline-banner">
+⚠ Offline Mode Active
+</div>
+
+<header class="topbar">
+
+<h2>
+AI Infrastructure DDS
+</h2>
+
+<div class="user-box">
+
+<span id="userName"></span>
+
+<button onclick="DDS.auth.logout()">
+Logout
+</button>
+
+</div>
+
+</header>
+
+<nav class="nav-links">
+
+<a href="dashboard.html">
+Dashboard
+</a>
+
+<a href="inspect.html">
+Inspect
+</a>
+
+<a href="reports.html"
+class="active">
+Reports
+</a>
+
+<a href="kanban.html">
+Kanban
+</a>
+
+</nav>
+
+<!-- ====================================== -->
+<!-- PAGE HEADER -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<h2>
+📑 Inspection Reports
+</h2>
+
+<p>
+Manage inspections, assignments,
+exports and work orders.
+</p>
+
+</section>
+
+<!-- ====================================== -->
+<!-- SEARCH -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<div class="grid-2">
+
+<input
+id="searchReports"
+type="text"
+placeholder="Search by ID, location or structure">
+
+<select id="sortReports">
+
+<option value="priority">
+Sort by Priority
+</option>
+
+<option value="date">
+Sort by Date
+</option>
+
+<option value="cost">
+Sort by Cost
+</option>
+
+<option value="severity">
+Sort by Severity
+</option>
+
+</select>
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- FILTERS -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<h3>
+Filters
+</h3>
+
+<div class="grid-4">
+
+<select id="countryFilter">
+<option value="">
+Country
+</option>
+</select>
+
+<select id="stateFilter">
+<option value="">
+State
+</option>
+</select>
+
+<select id="districtFilter">
+<option value="">
+District
+</option>
+</select>
+
+<select id="cityFilter">
+<option value="">
+City
+</option>
+</select>
+
+</div>
+
+<div class="grid-4">
+
+<select id="severityFilter">
+
+<option value="">
+Severity
+</option>
+
+<option>
+Low
+</option>
+
+<option>
+Moderate
+</option>
+
+<option>
+High
+</option>
+
+<option>
+Very High
+</option>
+
+<option>
+Critical
+</option>
+
+</select>
+
+<select id="priorityFilter">
+
+<option value="">
+Priority
+</option>
+
+<option>
+Low
+</option>
+
+<option>
+Medium
+</option>
+
+<option>
+High
+</option>
+
+<option>
+Very High
+</option>
+
+<option>
+Critical
+</option>
+
+</select>
+
+<select id="statusFilter">
+
+<option value="">
+Status
+</option>
+
+<option>
+Not Started
+</option>
+
+<option>
+In Progress
+</option>
+
+<option>
+Completed
+</option>
+
+</select>
+
+<select id="assignmentFilter">
+
+<option value="">
+Assigned Team
+</option>
+
+<option>
+Unassigned
+</option>
+
+<option>
+Contractor A
+</option>
+
+<option>
+Contractor B
+</option>
+
+<option>
+PWD Team
+</option>
+
+<option>
+NHAI Team
+</option>
+
+</select>
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- BULK ACTIONS -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<h3>
+Bulk Actions
+</h3>
+
+<div class="grid-3">
+
+<select id="bulkAction">
+
+<option value="">
+Select Action
+</option>
+
+<option value="notstarted">
+Set Status: Not Started
+</option>
+
+<option value="inprogress">
+Set Status: In Progress
+</option>
+
+<option value="completed">
+Set Status: Completed
+</option>
+
+<option value="assignA">
+Assign Contractor A
+</option>
+
+<option value="assignB">
+Assign Contractor B
+</option>
+
+<option value="assignPWD">
+Assign PWD Team
+</option>
+
+<option value="assignNHAI">
+Assign NHAI Team
+</option>
+
+<option value="delete">
+Delete Reports
+</option>
+
+</select>
+
+<button id="applyBulkAction"
+class="btn-primary">
+
+Apply
+
+</button>
+
+<button id="refreshReports"
+class="btn-secondary">
+
+Refresh
+
+</button>
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- EXPORTS -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<h3>
+Exports
+</h3>
+
+<div class="action-buttons">
+
+<button id="exportCSV"
+class="btn-success">
+
+CSV
+
+</button>
+
+<button id="exportExcel"
+class="btn-success">
+
+Excel
+
+</button>
+
+<button id="exportGeoJSON"
+class="btn-success">
+
+GeoJSON
+
+</button>
+
+<button id="exportPDF"
+class="btn-danger">
+
+PDF
+
+</button>
+
+<button id="backupDatabase"
+class="btn-secondary">
+
+Backup JSON
+
+</button>
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- REPORT TABLE -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<div class="table-container">
+
+<table id="reportsTable">
+
+<thead>
+
+<tr>
+
+<th>
+
+<input
+type="checkbox"
+id="selectAllReports">
+
+</th>
+
+<th>ID</th>
+
+<th>Date</th>
+
+<th>Structure</th>
+
+<th>Location</th>
+
+<th>Severity</th>
+
+<th>Priority</th>
+
+<th>Status</th>
+
+<th>Assigned</th>
+
+<th>Cost</th>
+
+<th>Timeline</th>
+
+<th>Weather</th>
+
+<th>Photos</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody id="reportsTableBody">
+
+<!-- script.js renders rows -->
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- PHOTO GALLERY -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<h3>
+📷 Inspection Gallery
+</h3>
+
+<div id="galleryContainer"
+class="gallery-grid">
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- TRAINING DATA -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<h3>
+🤖 Training Data
+</h3>
+
+<div class="action-buttons">
+
+<button id="exportTraining"
+class="btn-primary">
+
+Export Training Data
+
+</button>
+
+<button id="importTraining"
+class="btn-secondary">
+
+Import Training Data
+
+</button>
+
+<input
+type="file"
+id="trainingFile"
+style="display:none">
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- TIMELINE SUMMARY -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<h3>
+📅 Repair Timeline Reference
+</h3>
+
+<table class="mini-table">
+
+<tr>
+<th>Severity</th>
+<th>Timeline</th>
+</tr>
+
+<tr>
+<td>Low</td>
+<td>1–2 Days</td>
+</tr>
+
+<tr>
+<td>Moderate</td>
+<td>3–5 Days</td>
+</tr>
+
+<tr>
+<td>High</td>
+<td>5–10 Days</td>
+</tr>
+
+<tr>
+<td>Very High</td>
+<td>10–20 Days</td>
+</tr>
+
+<tr>
+<td>Critical</td>
+<td>20–45 Days</td>
+</tr>
+
+</table>
+
+</section>
+
+<!-- ====================================== -->
+<!-- LIGHTBOX -->
+<!-- ====================================== -->
+
+<div id="imageLightbox"
+class="lightbox">
+
+<span id="closeLightbox">
+&times;
+</span>
+
+<img
+id="lightboxImage"
+src="">
+
+</div>
+
+<!-- ====================================== -->
+<!-- FOOTER -->
+<!-- ====================================== -->
+
+<footer class="footer">
+
+AI Infrastructure DDS –
+Ultimate Cost & Management System
+
+</footer>
+
+<script src="script.js"></script>
+
+<script>
+
+//////////////////////////////////////////////////
+// AUTH CHECK
+//////////////////////////////////////////////////
+
+DDS.auth.requireLogin();
+
+//////////////////////////////////////////////////
+// PAGE INIT
+//////////////////////////////////////////////////
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+DDS.reports.refreshReports();
+
+DDS.reports.bindEvents();
+
+DDS.ui.updateOfflineBanner();
+
+});
+
+//////////////////////////////////////////////////
+// AUTO REFRESH
+//////////////////////////////////////////////////
+
+window.addEventListener(
+"storage",
+()=>{
+
+DDS.reports.refreshReports();
+
+}
+);
+
+//////////////////////////////////////////////////
+// SERVICE WORKER
+//////////////////////////////////////////////////
+
+if("serviceWorker" in navigator){
+
+navigator.serviceWorker
+.register("sw.js");
+
+}
+
+</script>
+
+</body>
+</html>

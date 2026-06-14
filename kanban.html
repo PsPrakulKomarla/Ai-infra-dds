@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Kanban Board | AI Infrastructure DDS</title>
+
+<link rel="stylesheet"
+href="style.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div id="offlineBanner"
+class="offline-banner">
+⚠ Offline Mode Active
+</div>
+
+<header class="topbar">
+
+<h2>
+📋 AI Infrastructure DDS
+</h2>
+
+<div class="user-box">
+
+<span id="userName"></span>
+
+<button onclick="DDS.auth.logout()">
+Logout
+</button>
+
+</div>
+
+</header>
+
+<nav class="nav-links">
+
+<a href="dashboard.html">
+Dashboard
+</a>
+
+<a href="inspect.html">
+Inspect
+</a>
+
+<a href="reports.html">
+Reports
+</a>
+
+<a href="kanban.html"
+class="active">
+Kanban
+</a>
+
+</nav>
+
+<!-- ====================================== -->
+<!-- SUMMARY -->
+<!-- ====================================== -->
+
+<section class="stats-grid">
+
+<div class="card">
+<h3>Not Started</h3>
+<h2 id="notStartedCount">0</h2>
+</div>
+
+<div class="card">
+<h3>In Progress</h3>
+<h2 id="inProgressCount">0</h2>
+</div>
+
+<div class="card">
+<h3>Completed</h3>
+<h2 id="completedCount">0</h2>
+</div>
+
+<div class="card">
+<h3>Critical</h3>
+<h2 id="criticalCount">0</h2>
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- FILTERS -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<div class="grid-4">
+
+<select id="kanbanPriorityFilter">
+
+<option value="">
+All Priorities
+</option>
+
+<option>
+Low
+</option>
+
+<option>
+Medium
+</option>
+
+<option>
+High
+</option>
+
+<option>
+Very High
+</option>
+
+<option>
+Critical
+</option>
+
+</select>
+
+<select id="kanbanAssignmentFilter">
+
+<option value="">
+All Teams
+</option>
+
+<option>
+Unassigned
+</option>
+
+<option>
+Contractor A
+</option>
+
+<option>
+Contractor B
+</option>
+
+<option>
+PWD Team
+</option>
+
+<option>
+NHAI Team
+</option>
+
+</select>
+
+<select id="kanbanSeverityFilter">
+
+<option value="">
+All Severity
+</option>
+
+<option>
+Low
+</option>
+
+<option>
+Moderate
+</option>
+
+<option>
+High
+</option>
+
+<option>
+Very High
+</option>
+
+<option>
+Critical
+</option>
+
+</select>
+
+<button id="refreshKanban"
+class="btn-primary">
+
+Refresh
+
+</button>
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- KANBAN BOARD -->
+<!-- ====================================== -->
+
+<section class="kanban-board">
+
+<!-- NOT STARTED -->
+
+<div class="kanban-column">
+
+<div class="kanban-header">
+
+🟡 Not Started
+
+</div>
+
+<div
+id="notStartedColumn"
+class="kanban-dropzone">
+
+</div>
+
+</div>
+
+<!-- IN PROGRESS -->
+
+<div class="kanban-column">
+
+<div class="kanban-header">
+
+🟠 In Progress
+
+</div>
+
+<div
+id="inProgressColumn"
+class="kanban-dropzone">
+
+</div>
+
+</div>
+
+<!-- COMPLETED -->
+
+<div class="kanban-column">
+
+<div class="kanban-header">
+
+🟢 Completed
+
+</div>
+
+<div
+id="completedColumn"
+class="kanban-dropzone">
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- WORKLOAD -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<h3>
+👷 Team Workload
+</h3>
+
+<div id="workloadContainer">
+
+<!-- script.js -->
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- LEGEND -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<h3>
+Priority Legend
+</h3>
+
+<div class="priority-legend">
+
+<span class="badge low">
+Low
+</span>
+
+<span class="badge medium">
+Medium
+</span>
+
+<span class="badge high">
+High
+</span>
+
+<span class="badge veryhigh">
+Very High
+</span>
+
+<span class="badge critical">
+Critical
+</span>
+
+</div>
+
+</section>
+
+<!-- ====================================== -->
+<!-- CARD TEMPLATE NOTES -->
+<!-- ====================================== -->
+
+<section class="card">
+
+<h3>
+Card Information
+</h3>
+
+<p>
+Each work card displays:
+</p>
+
+<ul>
+
+<li>Inspection ID</li>
+
+<li>Structure Type</li>
+
+<li>Location</li>
+
+<li>Severity</li>
+
+<li>Priority</li>
+
+<li>Assigned Team</li>
+
+<li>Estimated Cost</li>
+
+<li>Repair Timeline</li>
+
+<li>Weather Snapshot</li>
+
+</ul>
+
+</section>
+
+<footer class="footer">
+
+AI Infrastructure DDS –
+Ultimate Cost & Management System
+
+</footer>
+
+<script src="script.js"></script>
+
+<script>
+
+////////////////////////////////////////////////////
+// AUTH
+////////////////////////////////////////////////////
+
+DDS.auth.requireLogin();
+
+////////////////////////////////////////////////////
+// PAGE INIT
+////////////////////////////////////////////////////
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+DDS.kanban.refresh();
+
+DDS.kanban.bindEvents();
+
+DDS.ui.updateOfflineBanner();
+
+}
+);
+
+////////////////////////////////////////////////////
+// AUTO REFRESH
+////////////////////////////////////////////////////
+
+window.addEventListener(
+"storage",
+()=>{
+
+DDS.kanban.refresh();
+
+}
+);
+
+////////////////////////////////////////////////////
+// SERVICE WORKER
+////////////////////////////////////////////////////
+
+if("serviceWorker" in navigator){
+
+navigator.serviceWorker
+.register("sw.js");
+
+}
+
+</script>
+
+</body>
+</html>

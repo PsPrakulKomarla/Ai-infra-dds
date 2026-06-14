@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Inspect Infrastructure | AI Infrastructure DDS</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</head>
+
+<body>
+
+<div id="offlineBanner" class="offline-banner">
+⚠ Offline Mode Active
+</div>
+
+<header class="topbar">
+
+<h2>AI Infrastructure DDS</h2>
+
+<div class="user-box">
+
+<span id="userName"></span>
+
+<button onclick="logout()">
+Logout
+</button>
+
+</div>
+
+</header>
+
+<nav class="nav-links">
+
+<a href="dashboard.html">Dashboard</a>
+
+<a href="inspect.html">Inspect</a>
+
+<a href="reports.html">Reports</a>
+
+<a href="kanban.html">Kanban</a>
+
+</nav>
+
+<!-- ===================================================== -->
+<!-- LOCATION SECTION -->
+<!-- ===================================================== -->
+
+<section class="card">
+
+<h2>
+📍 Location Details
+</h2>
+
+<button id="getLocationBtn"
+class="btn-primary">
+
+Use Current Location
+
+</button>
+
+<div class="grid-4">
+
+<select id="country">
+<option>India</option>
+</select>
+
+<select id="state">
+<option>Select State</option>
+</select>
+
+<select id="district">
+<option>Select District</option>
+</select>
+
+<select id="city">
+<option>Select City</option>
+</select>
+
+</div>
+
+<div class="grid-2">
+
+<input
+type="text"
+id="latitude"
+placeholder="Latitude"
+readonly>
+
+<input
+type="text"
+id="longitude"
+placeholder="Longitude"
+readonly>
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- STRUCTURE SECTION -->
+<!-- ===================================================== -->
+
+<section class="card">
+
+<h2>
+🏗 Structure Information
+</h2>
+
+<div class="grid-3">
+
+<select id="structureType">
+
+<option value="road">Road</option>
+<option value="bridge">Bridge</option>
+<option value="building">Building</option>
+<option value="drainage">Drainage</option>
+<option value="culvert">Culvert</option>
+<option value="flyover">Flyover</option>
+<option value="footpath">Footpath</option>
+<option value="streetlight">Streetlight</option>
+<option value="retainingWall">Retaining Wall</option>
+<option value="waterPipeline">Water Pipeline</option>
+<option value="electricalPole">Electrical Pole</option>
+
+<option value="custom">
+Custom Structure
+</option>
+
+</select>
+
+<input
+type="text"
+id="customStructure"
+placeholder="Custom Structure Name">
+
+<input
+type="number"
+id="area"
+placeholder="Area / Quantity">
+
+</div>
+
+<textarea
+id="inspectionNotes"
+placeholder="Inspection Notes">
+</textarea>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- IMAGE SECTION -->
+<!-- ===================================================== -->
+
+<section class="card">
+
+<h2>
+📷 Damage Photos
+</h2>
+
+<div id="dropZone">
+
+Drag & Drop Photos Here
+
+<br><br>
+
+or
+
+<br><br>
+
+<input
+type="file"
+id="imageUpload"
+accept="image/*"
+multiple>
+
+</div>
+
+<button
+id="addMorePhotos"
+class="btn-secondary">
+
+Add Another Photo
+
+</button>
+
+<p>
+Maximum 10 Photos
+</p>
+
+<div id="photoPreview">
+</div>
+
+<canvas
+id="analysisCanvas"
+style="display:none">
+</canvas>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- AI ANALYSIS SECTION -->
+<!-- ===================================================== -->
+
+<section class="card">
+
+<h2>
+🤖 AI Damage Analysis
+</h2>
+
+<div class="grid-3">
+
+<div>
+
+<label>
+Dark Pixel %
+</label>
+
+<input
+type="text"
+id="darkPct"
+readonly>
+
+</div>
+
+<div>
+
+<label>
+Edge Density %
+</label>
+
+<input
+type="text"
+id="edgePct"
+readonly>
+
+</div>
+
+<div>
+
+<label>
+Confidence %
+</label>
+
+<input
+type="text"
+id="confidence"
+readonly>
+
+</div>
+
+</div>
+
+<div class="grid-2">
+
+<div>
+
+<label>
+AI Predicted Severity
+</label>
+
+<input
+type="text"
+id="predictedSeverity"
+readonly>
+
+</div>
+
+<div>
+
+<label>
+Engineer Override
+</label>
+
+<select id="overrideSeverity">
+
+<option value="">
+None
+</option>
+
+<option>Low</option>
+
+<option>Moderate</option>
+
+<option>High</option>
+
+<option>Very High</option>
+
+<option>Critical</option>
+
+</select>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- TRAFFIC + WEATHER -->
+<!-- ===================================================== -->
+
+<section class="card">
+
+<h2>
+🌦 Environment Data
+</h2>
+
+<div class="grid-3">
+
+<div>
+
+<label>
+Traffic
+</label>
+
+<input
+type="text"
+id="trafficLevel"
+readonly>
+
+</div>
+
+<div>
+
+<label>
+Weather
+</label>
+
+<input
+type="text"
+id="weatherCondition"
+readonly>
+
+</div>
+
+<div>
+
+<label>
+Temperature
+</label>
+
+<input
+type="text"
+id="temperature"
+readonly>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- SAFETY -->
+<!-- ===================================================== -->
+
+<section class="card">
+
+<h2>
+⚠ Safety Assessment
+</h2>
+
+<label>
+
+<input
+type="checkbox"
+id="safetyRisk">
+
+Safety Risk Present
+
+</label>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- ADDITIONAL WORKS -->
+<!-- ===================================================== -->
+
+<section class="card">
+
+<h2>
+🛠 Additional Works
+</h2>
+
+<div class="grid-2">
+
+<label>
+<input type="checkbox"
+id="treeRemoval">
+
+Tree Removal
+</label>
+
+<label>
+<input type="checkbox"
+id="debrisRemoval">
+
+Debris Removal
+</label>
+
+<label>
+<input type="checkbox"
+id="encroachmentRemoval">
+
+Encroachment Removal
+</label>
+
+<label>
+<input type="checkbox"
+id="drainCleaning">
+
+Drain Cleaning
+</label>
+
+<label>
+<input type="checkbox"
+id="poleRemoval">
+
+Pole Removal
+</label>
+
+<label>
+<input type="checkbox"
+id="trafficDiversion">
+
+Traffic Diversion
+</label>
+
+<label>
+<input type="checkbox"
+id="emergencyBarricading">
+
+Emergency Barricading
+</label>
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- CUSTOM WORK ITEMS -->
+<!-- ===================================================== -->
+
+<section class="card">
+
+<h2>
+➕ Custom Work Items
+</h2>
+
+<div id="customWorkContainer">
+</div>
+
+<button
+id="addCustomWork"
+class="btn-secondary">
+
+Add Work Item
+
+</button>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- COST BREAKDOWN -->
+<!-- ===================================================== -->
+
+<section
+id="costCard"
+class="card">
+
+<h2>
+💰 Cost Breakdown
+</h2>
+
+<div id="costBreakdown">
+
+<p>
+Waiting for calculation...
+</p>
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- OVERRIDES -->
+<!-- ===================================================== -->
+
+<section class="card">
+
+<h2>
+✏ Cost Overrides
+</h2>
+
+<div class="grid-2">
+
+<input
+type="number"
+id="manualCostOverride"
+placeholder="Override Final Cost">
+
+<input
+type="number"
+id="budgetAvailable"
+placeholder="Available Budget">
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- TIMELINE -->
+<!-- ===================================================== -->
+
+<section class="card">
+
+<h2>
+📅 Repair Timeline
+</h2>
+
+<div id="timelineResult">
+
+Timeline will appear here
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- ACTIONS -->
+<!-- ===================================================== -->
+
+<section class="card action-buttons">
+
+<button
+id="calculateBtn"
+class="btn-primary">
+
+Calculate Cost
+
+</button>
+
+<button
+id="saveReportBtn"
+class="btn-success">
+
+Save Report
+
+</button>
+
+<button
+id="shareBtn"
+class="btn-secondary">
+
+Share WhatsApp
+
+</button>
+
+<button
+id="pdfBtn"
+class="btn-danger">
+
+Export PDF
+
+</button>
+
+</section>
+
+<script src="script.js"></script>
+
+<script>
+
+const auth =
+JSON.parse(
+localStorage.getItem("auth")
+|| "null"
+);
+
+if(!auth){
+
+window.location.href =
+"index.html";
+
+}
+
+document
+.getElementById("userName")
+.innerHTML =
+auth.name +
+" (" +
+auth.role +
+")";
+
+function logout(){
+
+localStorage.removeItem("auth");
+
+window.location.href =
+"index.html";
+
+}
+
+if("serviceWorker" in navigator){
+
+navigator.serviceWorker
+.register("sw.js");
+
+}
+
+</script>
+
+</body>
+</html>
