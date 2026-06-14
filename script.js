@@ -3335,45 +3335,26 @@ if (document.getElementById("citySeverityChart")) {
 }
 function showMap(type){
 
-document.getElementById("damageMap")
-.style.display="none";
+document.getElementById("damageMap").style.display="none";
+document.getElementById("trafficMap").style.display="none";
+document.getElementById("overlayMap").style.display="none";
 
-document.getElementById("trafficMap")
-.style.display="none";
-
-document.getElementById("overlayMap")
-.style.display="none";
+document.getElementById("damageBtn").classList.remove("active");
+document.getElementById("trafficBtn").classList.remove("active");
+document.getElementById("overlayBtn").classList.remove("active");
 
 if(type==="damage"){
-document.getElementById("damageMap")
-.style.display="block";
+    document.getElementById("damageMap").style.display="block";
+    document.getElementById("damageBtn").classList.add("active");
 }
 
 if(type==="traffic"){
-document.getElementById("trafficMap")
-.style.display="block";
+    document.getElementById("trafficMap").style.display="block";
+    document.getElementById("trafficBtn").classList.add("active");
 }
 
 if(type==="overlay"){
-document.getElementById("overlayMap")
-.style.display="block";
+    document.getElementById("overlayMap").style.display="block";
+    document.getElementById("overlayBtn").classList.add("active");
 }
-
-}
-if(document.getElementById("damageMap")){
-
-const damageMap = L.map("damageMap")
-.setView([12.9716,77.5946], 11);
-
-L.tileLayer(
-"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-{
-maxZoom:19
-}
-).addTo(damageMap);
-
-L.marker([12.9716,77.5946])
-.addTo(damageMap)
-.bindPopup("Damage Location");
-
 }

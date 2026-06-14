@@ -887,15 +887,21 @@ height: 350px;
 }
 
 .dashboard-card{
-    background:#111827;
-    border:1px solid #1e293b;
-    border-radius:18px;
-    padding:20px;
-    box-shadow:0 8px 25px rgba(0,0,0,.35);
+    background: rgba(17,24,39,0.75);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow:
+      0 8px 32px rgba(0,0,0,.35),
+      inset 0 1px 0 rgba(255,255,255,.08);
+    transition: all .3s ease;
 }
 
-.dashboard-card h3{
-    margin-bottom:15px;
+.dashboard-card:hover{
+    transform: translateY(-5px);
+    box-shadow:
+      0 20px 50px rgba(37,99,235,.25);
 }
 @media(max-width:768px){
 
@@ -971,4 +977,45 @@ height: 350px;
     border:none;
     border-radius:10px;
     cursor:pointer;
+}
+body{
+    background:
+    radial-gradient(circle at top left,#2563eb22,transparent 30%),
+    radial-gradient(circle at bottom right,#06b6d422,transparent 30%),
+    #030712;
+
+    color:white;
+}
+.navbar{
+    backdrop-filter: blur(20px);
+    background: rgba(10,15,25,.8);
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+.stat-card{
+    background: linear-gradient(
+      135deg,
+      #111827,
+      #1e293b
+    );
+
+    border-radius:20px;
+    transition:.3s;
+}
+
+.stat-card:hover{
+    transform:translateY(-6px);
+}
+.dashboard-card{
+    animation:fadeUp .5s ease;
+}
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
