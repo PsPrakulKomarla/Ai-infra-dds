@@ -422,6 +422,25 @@ border-radius:16px;
 overflow:hidden;
 background:#111827;
 }
+.map-tabs button{
+    padding:12px 20px;
+    border:none;
+    border-radius:12px; 
+    cursor:pointer;
+    background:#1f2937;
+    color:white;
+    transition:0.3s;
+}
+
+.map-tabs button:hover{
+    background:#2563eb;
+}
+
+.map-tabs button.active{
+    background:#2563eb;
+    color:white;
+    box-shadow:0 0 15px rgba(37,99,235,0.5);
+}
 
 /* ==========================================
    TABLES
