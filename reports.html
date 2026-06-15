@@ -2,16 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Inspection reports - View and manage all infrastructure inspections">
 
 <title>Reports | AI Infrastructure DDS</title>
 
-<link rel="stylesheet"
-href="style.css">
+<link rel="stylesheet" href="style.css?v=3">
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<script>
+// Apply theme BEFORE page renders to prevent flash
+const theme = localStorage.getItem('theme') || 'dark';
+if (theme === 'light') {
+  document.documentElement.style.opacity = '0';
+  document.body.classList.add('light');
+  window.addEventListener('DOMContentLoaded', () => {
+    document.documentElement.style.opacity = '1';
+  });
+}
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -23,49 +33,35 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 
 <body>
 
-<div id="offlineBanner"
-class="offline-banner">
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="offlineBanner" class="offline-banner" role="alert" aria-live="polite">
 ⚠ Offline Mode Active
 </div>
 
-<header class="topbar">
+<header class="topbar" role="banner">
 
-<h2>
-AI Infrastructure DDS
-</h2>
+<h1>AI Infrastructure DDS</h1>
 
-<div class="user-box">
+<nav class="user-box" role="navigation" aria-label="User menu">
 
-<span id="userName"></span>
+<span id="userName" aria-label="User name"></span>
 
-<button onclick="DDS.auth.logout()">
-Logout
-</button>
+<button onclick="DDS.auth.logout()" aria-label="Logout">Logout</button>
 
-</div>
+</nav>
 
 </header>
 
-<nav class="nav-links">
+<nav class="nav-links" role="navigation" aria-label="Main navigation">
 
-<a href="dashboard.html">
-Dashboard
-</a>
+<a href="dashboard.html">Dashboard</a>
 
-<a href="inspect.html">
-Inspect
-</a>
+<a href="inspect.html">Inspect</a>
 
-<a href="reports.html"
-class="active">
-Reports
-</a>
+<a href="reports.html" aria-current="page">Reports</a>
 
-<a href="kanban.html">
-Kanban
-</a>
-
-</nav>
+<a href="kanban.html">Kanban</a>
 
 <!-- ====================================== -->
 <!-- PAGE HEADER -->

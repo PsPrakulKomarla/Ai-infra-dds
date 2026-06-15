@@ -7,8 +7,19 @@ content="width=device-width, initial-scale=1.0">
 
 <title>Kanban Board | AI Infrastructure DDS</title>
 
-<link rel="stylesheet"
-href="style.css">
+<link rel="stylesheet" href="style.css?v=3">
+
+<script>
+// Apply theme BEFORE page renders to prevent flash
+const theme = localStorage.getItem('theme') || 'dark';
+if (theme === 'light') {
+  document.documentElement.style.opacity = '0';
+  document.body.classList.add('light');
+  window.addEventListener('DOMContentLoaded', () => {
+    document.documentElement.style.opacity = '1';
+  });
+}
+</script>
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
