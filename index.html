@@ -14,8 +14,8 @@
 const theme = localStorage.getItem('theme') || 'dark';
 if (theme === 'light') {
   document.documentElement.style.opacity = '0';
-  document.body.classList.add('light');
   window.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('light');
     document.documentElement.style.opacity = '1';
   });
 }
@@ -37,7 +37,7 @@ if (theme === 'light') {
 <div class="auth-wrapper">
 
 <div class="top-controls">
-
+  <button id="themeToggle" aria-label="Toggle theme" style="background:none; border:none; font-size: 24px; cursor:pointer;">☀️</button>
 </div>
 
 <div class="auth-card">
@@ -123,15 +123,7 @@ Login
 
 </form>
 
-<p class="demo-info">
 
-Default Admin:<br>
-
-admin@dds.com<br>
-
-Password: admin123
-
-</p>
 
 </div>
 
@@ -399,25 +391,16 @@ window.location =
 });
 
 // Theme
-
-const btn =
-document.getElementById("themeToggle");
-
-btn.onclick=()=>{
-
-document.body.classList.toggle("dark");
-
-localStorage.setItem(
-"theme",
-document.body.classList.contains("dark")
-? "dark"
-: "light"
-);
-
-};
-
-if(localStorage.getItem("theme")==="dark"){
-document.body.classList.add("dark");
+const btn = document.getElementById("themeToggle");
+if (btn) {
+  const currentTheme = localStorage.getItem("theme") || "dark";
+  btn.innerHTML = currentTheme === "light" ? "🌙" : "☀️";
+  btn.onclick = () => {
+    document.body.classList.toggle("light");
+    const isLight = document.body.classList.contains("light");
+    localStorage.setItem("theme", isLight ? "light" : "dark");
+    btn.innerHTML = isLight ? "🌙" : "☀️";
+  };
 }
 
 // Offline Banner

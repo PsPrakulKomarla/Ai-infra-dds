@@ -1,0 +1,26 @@
+{
+  "name": "ai-infra-dds",
+  "version": "1.0.0",
+  "description": "**AI Infrastructure Damage Detection System (DDS)** is a Progressive Web Application for analyzing infrastructure damage, calculating repair costs, and managing work orders.",
+  "main": "dashboard.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PsPrakulKomarla/Ai-infra-dds.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/PsPrakulKomarla/Ai-infra-dds/issues"
+  },
+  "homepage": "https://github.com/PsPrakulKomarla/Ai-infra-dds#readme",
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}

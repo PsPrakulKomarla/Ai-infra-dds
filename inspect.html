@@ -14,8 +14,8 @@
 const theme = localStorage.getItem('theme') || 'dark';
 if (theme === 'light') {
   document.documentElement.style.opacity = '0';
-  document.body.classList.add('light');
   window.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('light');
     document.documentElement.style.opacity = '1';
   });
 }
@@ -52,15 +52,9 @@ if (theme === 'light') {
 </header>
 
 <nav class="nav-links" role="navigation" aria-label="Main navigation">
-
-<a href="dashboard.html">Dashboard</a>
-
-<a href="inspect.html" aria-current="page">Inspect</a>
-
-<a href="reports.html">Reports</a>
-
-<a href="kanban.html">Kanban</a>
-
+  <a href="dashboard.html">Dashboard</a>
+  <a href="inspect.html" aria-current="page">Inspect</a>
+  <a href="management.html">Management</a>
 </nav>
 
 <!-- ===================================================== -->

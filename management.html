@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Inspection Management - View inspections, assignments, exports, and Kanban work orders">
+<title>Management | AI Infrastructure DDS</title>
+<link rel="stylesheet" href="style.css?v=4">
+<script>
+// Apply theme BEFORE page renders to prevent flash
+const theme = localStorage.getItem('theme') || 'dark';
+if (theme === 'light') {
+  document.documentElement.style.opacity = '0';
+  document.body.classList.add('light');
+  window.addEventListener('DOMContentLoaded', () => {
+    document.documentElement.style.opacity = '1';
+  });
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="offlineBanner" class="offline-banner" role="alert" aria-live="polite">
+  ⚠ Offline Mode Active (Local caching enabled)
+</div>
+
+<header class="topbar" role="banner">
+  <h1>AI Infrastructure DDS</h1>
+  <nav class="user-box" role="navigation" aria-label="User menu">
+    <button id="themeToggle" class="btn-icon" aria-label="Toggle dark/light theme" title="Toggle theme">☀️</button>
+    <span id="userName" aria-label="User name"></span>
+    <button onclick="DDS.auth.logout()" class="btn-danger" aria-label="Logout">Logout</button>
+  </nav>
+</header>
+
+<nav class="nav-links" role="navigation" aria-label="Main navigation">
+  <a href="dashboard.html">Dashboard</a>
+  <a href="inspect.html">Inspect</a>
+  <a href="management.html" aria-current="page" class="active">Management</a>
+</nav>
+
+<main id="main-content" class="container">
+  
+  <!-- PAGE HEADER -->
+  <section class="card glass-card">
+    <div class="header-flex">
+      <div>
+        <h2>📑 Unified Work Management</h2>
+        <p>Manage inspections, drag-and-drop task assignments, execute bulk operations, and export datasets.</p>
+      </div>
+      <!-- Mode Tabs -->
+      <div class="mode-tabs" role="tablist">
+        <button id="tableViewBtn" class="tab-btn active" onclick="switchView('table')" role="tab" aria-selected="true" aria-controls="tableView">
+          <i class="fas fa-table"></i> Table View
+        </button>
+        <button id="boardViewBtn" class="tab-btn" onclick="switchView('board')" role="tab" aria-selected="false" aria-controls="boardView">
+          <i class="fas fa-columns"></i> Kanban Board
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEARCH & FILTERS -->
+  <section class="card glass-card filters-section">
+    <h3><i class="fas fa-filter"></i> Search & Filters</h3>
+    <div class="grid-4 filter-row">
+      <div class="form-group">
+        <label for="searchReports">Keyword Search</label>
+        <input id="searchReports" type="text" placeholder="Search ID, city, state, structure...">
+      </div>
+      <div class="form-group">
+        <label for="stateFilter">State</label>
+        <select id="stateFilter">
+          <option value="">All States</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="districtFilter">District</label>
+        <select id="districtFilter">
+          <option value="">All Districts</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="cityFilter">City</label>
+        <select id="cityFilter">
+          <option value="">All Cities</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-4 filter-row-secondary">
+      <div class="form-group">
+        <label for="severityFilter">Severity</label>
+        <select id="severityFilter">
+          <option value="">All Severities</option>
+          <option value="Low">Low</option>
+          <option value="Moderate">Moderate</option>
+          <option value="High">High</option>
+          <option value="Very High">Very High</option>
+          <option value="Critical">Critical</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="priorityFilter">Priority</label>
+        <select id="priorityFilter">
+          <option value="">All Priorities</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+          <option value="Very High">Very High</option>
+          <option value="Critical">Critical</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="statusFilter">Status</label>
+        <select id="statusFilter">
+          <option value="">All Statuses</option>
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="assignmentFilter">Assigned Team</label>
+        <select id="assignmentFilter">
+          <option value="">All Teams</option>
+          <option value="Unassigned">Unassigned</option>
+          <option value="Contractor A">Contractor A</option>
+          <option value="Contractor B">Contractor B</option>
+          <option value="PWD Team">PWD Team</option>
+          <option value="NHAI Team">NHAI Team</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="grid-2 action-row">
+      <div class="form-group">
+        <label for="sortReports">Sort Reports By</label>
+        <select id="sortReports">
+          <option value="date">Date Created (Newest)</option>
+          <option value="cost">Estimated Cost (Highest)</option>
+          <option value="severity">Severity Level (Highest)</option>
+          <option value="priority">Priority Level (Highest)</option>
+        </select>
+      </div>
+      <div class="flex-end-buttons">
+        <button id="applyFiltersBtn" class="btn-primary" onclick="applyManagementFilters()">Apply Filters</button>
+        <button id="resetFiltersBtn" class="btn-secondary" onclick="resetManagementFilters()">Reset</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABLE VIEW PANEL -->
+  <div id="tableView" class="view-panel" role="tabpanel" aria-labelledby="tableViewBtn">
+    
+    <!-- BULK ACTIONS & EXPORTS -->
+    <div class="management-controls grid-2">
+      <!-- Bulk Actions -->
+      <div class="card glass-card">
+        <h3><i class="fas fa-tasks"></i> Bulk Action Operations</h3>
+        <div class="flex-row">
+          <select id="bulkAction" aria-label="Bulk action option">
+            <option value="">Select Bulk Action</option>
+            <option value="notstarted">Set Status: Not Started</option>
+            <option value="inprogress">Set Status: In Progress</option>
+            <option value="completed">Set Status: Completed</option>
+            <option value="assignA">Assign Contractor A</option>
+            <option value="assignB">Assign Contractor B</option>
+            <option value="assignPWD">Assign PWD Team</option>
+            <option value="assignNHAI">Assign NHAI Team</option>
+            <option value="delete">Permanently Delete Reports</option>
+          </select>
+          <button id="applyBulkAction" class="btn-primary">Apply to Selected</button>
+        </div>
+      </div>
+      <!-- Exports -->
+      <div class="card glass-card">
+        <h3><i class="fas fa-file-export"></i> Database Exports</h3>
+        <div class="flex-wrap">
+          <button id="exportCSV" class="btn-success"><i class="fas fa-file-csv"></i> CSV</button>
+          <button id="exportExcel" class="btn-success"><i class="fas fa-file-excel"></i> Excel</button>
+          <button id="exportGeoJSON" class="btn-success"><i class="fas fa-map-marked-alt"></i> GeoJSON</button>
+          <button id="exportPDF" class="btn-danger"><i class="fas fa-file-pdf"></i> PDF Summary</button>
+          <button id="backupDatabase" class="btn-secondary"><i class="fas fa-download"></i> Backup JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORT TABLE -->
+    <section class="card glass-card table-section">
+      <div class="table-container">
+        <table id="reportsTable">
+          <thead>
+            <tr>
+              <th scope="col"><input type="checkbox" id="selectAllReports" aria-label="Select all reports"></th>
+              <th scope="col">ID</th>
+              <th scope="col">Date</th>
+              <th scope="col">Structure</th>
+              <th scope="col">Location</th>
+              <th scope="col">Severity</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Status</th>
+              <th scope="col">Assigned</th>
+              <th scope="col">Cost</th>
+              <th scope="col">Timeline</th>
+              <th scope="col">Weather</th>
+              <th scope="col">Photos</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTableBody">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PHOTO GALLERY -->
+    <section class="card glass-card">
+      <h3><i class="fas fa-images"></i> Inspection Photo Gallery</h3>
+      <div id="galleryContainer" class="gallery-grid">
+        <p class="empty-state">Select an inspection from the table above to view attached photos.</p>
+      </div>
+    </section>
+
+    <!-- KNN TRAINING CONTROLS -->
+    <section class="card glass-card">
+      <h3><i class="fas fa-brain"></i> AI KNN Classifier Training & Model Management</h3>
+      <p>Configure model training samples. Export the datasets to share or import files to retrain the KNN damage classification engine.</p>
+      <div class="action-buttons">
+        <button id="exportTraining" class="btn-primary"><i class="fas fa-file-export"></i> Export Training Dataset</button>
+        <button id="importTraining" class="btn-secondary" onclick="document.getElementById('trainingFile').click()"><i class="fas fa-file-import"></i> Import Training Dataset</button>
+        <input type="file" id="trainingFile" accept=".json" style="display:none">
+      </div>
+    </section>
+  </div>
+
+  <!-- BOARD VIEW PANEL (KANBAN) -->
+  <div id="boardView" class="view-panel" style="display:none;" role="tabpanel" aria-labelledby="boardViewBtn">
+    <!-- Stat Indicators -->
+    <section class="stats-grid grid-4" style="margin-bottom: 20px;">
+      <div class="card glass-card stat-item">
+        <h3>Not Started</h3>
+        <h2 id="notStartedCount">0</h2>
+      </div>
+      <div class="card glass-card stat-item">
+        <h3>In Progress</h3>
+        <h2 id="inProgressCount">0</h2>
+      </div>
+      <div class="card glass-card stat-item">
+        <h3>Completed</h3>
+        <h2 id="completedCount">0</h2>
+      </div>
+      <div class="card glass-card stat-item">
+        <h3>Critical</h3>
+        <h2 id="criticalCount">0</h2>
+      </div>
+    </section>
+
+    <!-- Kanban Dropzones -->
+    <section class="kanban-board">
+      <!-- NOT STARTED -->
+      <div class="kanban-column">
+        <div class="kanban-header ns-header"><span class="dot yellow-dot"></span> Not Started</div>
+        <div id="notStartedColumn" class="kanban-dropzone" data-status="Not Started"></div>
+      </div>
+      <!-- IN PROGRESS -->
+      <div class="kanban-column">
+        <div class="kanban-header ip-header"><span class="dot orange-dot"></span> In Progress</div>
+        <div id="inProgressColumn" class="kanban-dropzone" data-status="In Progress"></div>
+      </div>
+      <!-- COMPLETED -->
+      <div class="kanban-column">
+        <div class="kanban-header cp-header"><span class="dot green-dot"></span> Completed</div>
+        <div id="completedColumn" class="kanban-dropzone" data-status="Completed"></div>
+      </div>
+    </section>
+
+    <!-- Workload Allocation -->
+    <section class="card glass-card workload-section">
+      <h3><i class="fas fa-people-carry"></i> Contractor Workload & Budget Allocation</h3>
+      <div id="workloadContainer" class="workload-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- Priority Legends -->
+    <section class="card glass-card">
+      <h3>Priority Class Legend</h3>
+      <div class="priority-legend">
+        <span class="badge low">Low</span>
+        <span class="badge medium">Medium</span>
+        <span class="badge high">High</span>
+        <span class="badge veryhigh">Very High</span>
+        <span class="badge critical">Critical</span>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<!-- LIGHTBOX -->
+<div id="imageLightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Image Zoom">
+  <span id="closeLightbox" aria-label="Close image zoom">&times;</span>
+  <img id="lightboxImage" src="" alt="Zoomed Inspection">
+</div>
+
+<footer class="footer" role="contentinfo">
+  AI Infrastructure DDS – Ultimate Damage Detection & Management System
+</footer>
+
+<script src="script.js?v=4"></script>
+<script>
+// Check login auth
+DDS.auth.requireLogin();
+
+// Populate selector filters
+document.addEventListener("DOMContentLoaded", () => {
+  DDS.ui.populateManagementFilters();
+  DDS.reports.refreshReports();
+  DDS.reports.bindEvents();
+  DDS.kanban.bindEvents();
+  DDS.export.bindEvents();
+  
+  // Custom input files listener
+  const trainingInput = document.getElementById("trainingFile");
+  if (trainingInput) {
+    trainingInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+          const response = await fetch("/api/knn/training", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          });
+          const result = await response.json();
+          if (result.success) {
+            alert("KNN Training Dataset imported successfully!");
+            // reload KNN training weights in memory
+            KNNAlgorithm.initializeTraining();
+          } else {
+            alert("Import failed: " + (result.error || "Unknown error"));
+          }
+        } catch (err) {
+          alert("Error parsing training JSON file: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+  }
+});
+
+// Auto-refresh when localStorage synchronizes
+window.addEventListener("storage", () => {
+  DDS.reports.refreshReports();
+});
+
+// View switcher tabs
+function switchView(mode) {
+  const tableView = document.getElementById("tableView");
+  const boardView = document.getElementById("boardView");
+  const tableBtn = document.getElementById("tableViewBtn");
+  const boardBtn = document.getElementById("boardViewBtn");
+
+  if (mode === "table") {
+    tableView.style.display = "block";
+    boardView.style.display = "none";
+    tableBtn.classList.add("active");
+    boardBtn.classList.remove("active");
+    tableBtn.setAttribute("aria-selected", "true");
+    boardBtn.setAttribute("aria-selected", "false");
+  } else {
+    tableView.style.display = "none";
+    boardView.style.display = "block";
+    tableBtn.classList.remove("active");
+    boardBtn.classList.add("active");
+    tableBtn.setAttribute("aria-selected", "false");
+    boardBtn.setAttribute("aria-selected", "true");
+    // Refresh kanban layout to ensure calculations load
+    DDS.kanban.refresh();
+  }
+}
+
+// Cascading filters in management page
+function applyManagementFilters() {
+  DDS.reports.refreshReports();
+}
+
+function resetManagementFilters() {
+  document.getElementById("searchReports").value = "";
+  document.getElementById("stateFilter").value = "";
+  document.getElementById("districtFilter").value = "";
+  document.getElementById("cityFilter").value = "";
+  document.getElementById("severityFilter").value = "";
+  document.getElementById("priorityFilter").value = "";
+  document.getElementById("statusFilter").value = "";
+  document.getElementById("assignmentFilter").value = "";
+  
+  // Re-populate cascade dropdowns
+  DDS.ui.populateManagementFilters();
+  DDS.reports.refreshReports();
+}
+</script>
+</body>
+</html>

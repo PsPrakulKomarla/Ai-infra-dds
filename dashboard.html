@@ -1,720 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="AI Infrastructure DDS - Damage Detection System for infrastructure cost estimation">
-<meta name="theme-color" content="#2563eb">
-
+<meta name="description" content="AI Infrastructure Damage Detection System (DDS) Analytics Dashboard">
 <title>Dashboard | AI Infrastructure DDS</title>
-
-<link rel="stylesheet" href="style.css?v=3">
-
+<link rel="stylesheet" href="style.css?v=4">
 <script>
 // Apply theme BEFORE page renders to prevent flash
 const theme = localStorage.getItem('theme') || 'dark';
 if (theme === 'light') {
   document.documentElement.style.opacity = '0';
-  document.body.classList.add('light');
   window.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('light');
     document.documentElement.style.opacity = '1';
   });
 }
 </script>
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css">
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-
 <body>
 
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
 <div id="offlineBanner" class="offline-banner" role="alert" aria-live="polite">
-⚠ Offline Mode Active
+  ⚠ Offline Mode Active
 </div>
 
 <header class="topbar" role="banner">
-
-<h1>AI Infrastructure DDS</h1>
-
-<nav class="user-box" role="navigation" aria-label="User menu">
-
-<label for="languageSelector" aria-label="Select language">Language:</label>
-<select id="languageSelector" aria-label="Language selector">
-<option value="en">English</option>
-<option value="hi">हिन्दी</option>
-<option value="kn">ಕನ್ನಡ</option>
-</select>
-
-<button id="themeToggle" aria-label="Toggle dark/light theme" title="Toggle theme">☀️</button>
-
-<span id="userName" aria-label="User name"></span>
-
-<button onclick="logout()" aria-label="Logout">Logout</button>
-
-</nav>
-
+  <h1>AI Infrastructure DDS</h1>
+  <nav class="user-box" role="navigation" aria-label="User menu">
+    <button id="themeToggle" class="btn-icon" aria-label="Toggle dark/light theme" title="Toggle theme">☀️</button>
+    <span id="userName" aria-label="User name"></span>
+    <button onclick="DDS.auth.logout()" class="btn-danger" aria-label="Logout">Logout</button>
+  </nav>
 </header>
 
 <nav class="nav-links" role="navigation" aria-label="Main navigation">
-<a href="dashboard.html" aria-current="page">Dashboard</a>
-<a href="inspect.html">Inspect</a>
-<a href="reports.html">Reports</a>
-<a href="kanban.html">Kanban</a>
-<section class="hero">
-
-    <div class="hero-content">
-
-        <h1>AI Infrastructure DDS</h1>
-
-        <p>
-            AI Powered Infrastructure Damage Detection,
-            Cost Estimation & Work Order Management
-        </p>
-
-        <div class="hero-buttons">
-
-            <a href="inspect.html" class="hero-btn">
-                New Inspection
-            </a>
-
-            <a href="reports.html"
-               class="hero-btn secondary">
-                View Reports
-            </a>
-
-        </div>
-
-    </div>
-
-</section>
-<nav class="nav-links">
-
-<a href="dashboard.html">
-Dashboard
-</a>
-
-<a href="inspect.html">
-Inspect
-</a>
-
-<a href="reports.html">
-Reports
-</a>
-
-<a href="kanban.html">
-Kanban
-</a>
-
+  <a href="dashboard.html" aria-current="page" class="active">Dashboard</a>
+  <a href="inspect.html">Inspect</a>
+  <a href="management.html">Management</a>
 </nav>
 
-<!-- FILTERS -->
-
-<section class="filters">
-
-<select id="countryFilter"></select>
-
-<select id="stateFilter"></select>
-
-<select id="districtFilter"></select>
-
-<select id="cityFilter"></select>
-
-<button onclick="refreshDashboard()">
-Apply
-</button>
-
-</section>
-
-<!-- STATS -->
-
-<section class="stats-grid">
-
-<div class="card">
-<h3>Total Reports</h3>
-<h2 id="totalReports">0</h2>
-</div>
-
-<div class="card">
-<h3>Total Cost</h3>
-<h2 id="totalCost">₹0</h2>
-</div>
-
-<div class="card">
-<h3>Critical</h3>
-<h2 id="criticalCount">0</h2>
-</div>
-
-<div class="card">
-<h3>In Progress</h3>
-<h2 id="progressCount">0</h2>
-</div>
-
-</section>
-
-<!-- ALERTS -->
-
-<section class="card">
-
-<h3>
-Notifications
-</h3>
-
-<ul id="alertList">
-</ul>
-
-</section>
-
-<!-- CHARTS -->
-
-<div class="chart-grid">
-
-    <div class="dashboard-card">
-        <h3><i class="fas fa-chart-pie"></i> Severity Distribution</h3>
-        <div class="chart-container">
-            <canvas id="severityChart"></canvas>
+<main id="main-content" class="container dashboard-container">
+  
+  <!-- ROW 1: FILTERS & METRICS -->
+  <div class="dashboard-row grid-large-small">
+    
+    <!-- LEFT PANEL: FILTERS & METRICS -->
+    <div class="flex-column">
+      <!-- FILTERS -->
+      <section class="card glass-card">
+        <h3><i class="fas fa-filter"></i> Geographic Scope</h3>
+        <div class="grid-4 filter-container">
+          <div class="form-group">
+            <label for="countryFilter">Country</label>
+            <select id="countryFilter">
+              <option value="India">India</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="stateFilter">State</label>
+            <select id="stateFilter">
+              <option value="">All States</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="districtFilter">District</label>
+            <select id="districtFilter">
+              <option value="">All Districts</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cityFilter">City</label>
+            <select id="cityFilter">
+              <option value="">All Cities</option>
+            </select>
+          </div>
         </div>
+        <div class="flex-end-buttons" style="margin-top: 15px;">
+          <button onclick="applyDashboardFilters()" class="btn-primary">Apply Filters</button>
+          <button onclick="resetDashboardFilters()" class="btn-secondary">Reset</button>
+        </div>
+      </section>
+
+      <!-- STATS -->
+      <section class="stats-grid grid-4">
+        <div class="card glass-card stat-item">
+          <h3>Total Reports</h3>
+          <h2 id="totalReports">0</h2>
+        </div>
+        <div class="card glass-card stat-item">
+          <h3>Estimated Cost</h3>
+          <h2 id="totalCost">₹0</h2>
+        </div>
+        <div class="card glass-card stat-item">
+          <h3>Critical Damage</h3>
+          <h2 id="criticalCount" class="text-danger">0</h2>
+        </div>
+        <div class="card glass-card stat-item">
+          <h3>In Progress</h3>
+          <h2 id="progressCount" class="text-warning">0</h2>
+        </div>
+      </section>
     </div>
 
-    <div class="dashboard-card">
-        <h3><i class="fas fa-chart-bar"></i> Cost by City & Severity</h3>
-        <div class="chart-container">
-            <canvas id="citySeverityChart"></canvas>
-        </div>
+    <!-- RIGHT PANEL: NOTIFICATIONS -->
+    <section class="card glass-card notification-panel">
+      <h3><i class="fas fa-bell"></i> Critical Action Items</h3>
+      <div class="alert-list-container">
+        <ul id="alertList" class="alert-list">
+          <li class="empty-state">No critical notifications.</li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ROW 2: MAP VIEWS -->
+  <section class="card glass-card map-card">
+    <div class="map-header">
+      <h3><i class="fas fa-map-marked-alt"></i> Interactive GIS Map Visualization</h3>
+      <div class="map-tabs" role="tablist">
+        <button id="damageBtn" class="map-tab active" onclick="switchMapMode('damage')" role="tab" aria-selected="true">
+          <i class="fas fa-exclamation-triangle"></i> Damage Markers
+        </button>
+        <button id="trafficBtn" class="map-tab" onclick="switchMapMode('traffic')" role="tab" aria-selected="false">
+          <i class="fas fa-road"></i> Damage Heatmap
+        </button>
+      </div>
+    </div>
+    
+    <div class="map-wrapper">
+      <div id="damageMap" class="map-box"></div>
+      <div id="trafficMap" class="map-box" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ROW 3: CHARTS & ANALYTICS -->
+  <div class="dashboard-row grid-2">
+    <div class="card glass-card">
+      <h3><i class="fas fa-chart-pie"></i> Severity Distribution</h3>
+      <div class="chart-container">
+        <canvas id="severityChart"></canvas>
+      </div>
     </div>
 
-</div>
+    <div class="card glass-card">
+      <h3><i class="fas fa-chart-bar"></i> Estimated Cost by Structure Type</h3>
+      <div class="chart-container">
+        <canvas id="costChart"></canvas>
+      </div>
+    </div>
+  </div>
 
-<div class="dashboard-card">
-    <h3><i class="fas fa-table"></i> Damage Heatmap by City</h3>
-
-    <table class="heatmap-table">
-        <thead>
+  <!-- ROW 4: HEATMAP TABLE & SIDEBAR -->
+  <div class="dashboard-row grid-large-small">
+    
+    <!-- LEFT: HEATMAP TABLE -->
+    <section class="card glass-card">
+      <h3><i class="fas fa-th"></i> Damage Incidents Heatmap by City</h3>
+      <div class="table-container">
+        <table class="heatmap-table">
+          <thead>
             <tr>
-                <th>City</th>
-                <th class="sev-green">Low</th>
-                <th class="sev-blue">Moderate</th>
-                <th class="sev-yellow">High</th>
-                <th class="sev-orange">Very High</th>
-                <th class="sev-red">Critical</th>
+              <th scope="col">City</th>
+              <th scope="col" class="sev-green">Low</th>
+              <th scope="col" class="sev-blue">Moderate</th>
+              <th scope="col" class="sev-yellow">High</th>
+              <th scope="col" class="sev-orange">Very High</th>
+              <th scope="col" class="sev-red">Critical</th>
             </tr>
-        </thead>
+          </thead>
+          <tbody id="heatmapTableBody">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-        <tbody id="heatmapTableBody">
-        </tbody>
-    </table>
-</div>
-</section>
+    <!-- RIGHT: HELPLINES & RECENT -->
+    <div class="flex-column">
+      <section class="card glass-card flex-grow">
+        <h3><i class="fas fa-history"></i> Recent Inspections</h3>
+        <div id="recentReports" class="recent-list">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
 
-<!-- MAPS -->
-<section class="dashboard-card">
+      <section class="card glass-card">
+        <h3><i class="fas fa-phone-alt"></i> Emergency Support</h3>
+        <ul class="helpline-list">
+          <li><strong>NHAI National:</strong> <a href="tel:1033">1033</a></li>
+          <li><strong>PWD Toll-free:</strong> <a href="tel:1908">1908</a></li>
+          <li><strong>NDMA Helpline:</strong> <a href="tel:1078">1078</a></li>
+          <li><strong>State Emergency:</strong> <a href="tel:112">112</a></li>
+        </ul>
+      </section>
+    </div>
 
-<h3>🗺 Map Views</h3>
+  </div>
 
-<div class="map-tabs">
+</main>
 
-<button id="damageBtn"
-        class="active"
-        onclick="showMap('damage')">
-Damage Map
-</button>
+<footer class="footer" role="contentinfo">
+  AI Infrastructure DDS – Ultimate Damage Detection & Management System
+</footer>
 
-<button id="trafficBtn"
-        onclick="showMap('traffic')">
-Traffic Density
-</button>
-
-<button id="overlayBtn"
-        onclick="showMap('overlay')">
-Overlay View
-</button>
-</div>
-
-<div id="damageMap" class="map-box"></div>
-
-<div id="trafficMap"
-     class="map-box"
-     style="display:none">
-</div>
-
-<div id="overlayMap"
-     class="map-box"
-     style="display:none">
-</div>
-
-</section>
-
-<!-- RECENT REPORTS -->
-
-<section class="card">
-
-<h3>
-Recent Reports
-</h3>
-
-<div id="recentReports">
-</div>
-
-</section>
-
-<!-- HELPLINES -->
-
-<section class="card">
-
-<h3>
-Emergency Helplines
-</h3>
-
-<ul>
-
-<li>NHAI : 1033</li>
-
-<li>PWD : 1908</li>
-
-<li>NDMA : 1078</li>
-
-<li>Emergency : 112</li>
-
-</ul>
-
-</section>
-
-<script src="script.js?v=2"></script>
-
+<script src="script.js?v=4"></script>
 <script>
+// Check login auth
+DDS.auth.requireLogin();
 
-//////////////////////////////////////////////////////////
-// AUTH CHECK
-//////////////////////////////////////////////////////////
-
-const auth =
-JSON.parse(
-localStorage.getItem("auth")
-|| "null"
-);
-
-if(!auth){
-
-window.location.href =
-"dashboard.html";
-
-}else{
-
-console.log("AUTH =", auth);
-
-document
-.getElementById("userName")
-.innerHTML =
-auth.name +
-" (" +
-auth.role +
-")";
-
-}
-
-//////////////////////////////////////////////////////////
-// LOGOUT
-//////////////////////////////////////////////////////////
-
-function logout(){
-
-localStorage.removeItem("auth");
-
-window.location.href =
-"index.html";
-
-}
-
-//////////////////////////////////////////////////////////
-// MAPS
-//////////////////////////////////////////////////////////
-
-let damageMap =
-L.map("damageMap")
-.setView([20.5937,78.9629],5);
-
-let trafficMap =
-L.map("trafficMap")
-.setView([20.5937,78.9629],5);
-
-let combinedMap =
-L.map("combinedMap")
-.setView([20.5937,78.9629],5);
-
-const osm =
-L.tileLayer(
-"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-{
-maxZoom:19
-}
-);
-
-osm.addTo(damageMap);
-osm.addTo(trafficMap);
-osm.addTo(combinedMap);
-
-//////////////////////////////////////////////////////////
-// REFRESH DASHBOARD
-//////////////////////////////////////////////////////////
-
-function refreshDashboard(){
-
-let reports =
-JSON.parse(
-localStorage.getItem("inspections")
-|| "[]"
-);
-
-document
-.getElementById("totalReports")
-.innerHTML =
-reports.length;
-
-let totalCost =
-reports.reduce(
-(a,b)=>
-a+(b.finalCost||0),
-0
-);
-
-document
-.getElementById("totalCost")
-.innerHTML =
-"₹"+
-totalCost.toLocaleString();
-
-let critical =
-reports.filter(
-r=>r.severity==="Critical"
-).length;
-
-document
-.getElementById("criticalCount")
-.innerHTML =
-critical;
-
-let progress =
-reports.filter(
-r=>r.status==="In Progress"
-).length;
-
-document
-.getElementById("progressCount")
-.innerHTML =
-progress;
-
-renderAlerts(reports);
-
-renderRecent(reports);
-
-renderCharts(reports);
-
-renderMaps(reports);
-
-}
-
-//////////////////////////////////////////////////////////
-// ALERTS
-//////////////////////////////////////////////////////////
-
-function renderAlerts(data){
-
-const ul =
-document.getElementById("alertList");
-
-ul.innerHTML="";
-
-data.forEach(r=>{
-
-if(
-r.severity==="Critical"
-){
-
-ul.innerHTML+=
-`<li>
-🚨 Critical:
-${r.structure}
-at
-${r.city}
-</li>`;
-
-}
-
-if(
-r.assignedTo==="Unassigned"
-){
-
-ul.innerHTML+=
-`<li>
-⚠ Unassigned:
-${r.id}
-</li>`;
-
-}
-
+document.addEventListener("DOMContentLoaded", () => {
+  // Populate the 4 filters dynamically on load
+  DDS.ui.populateDashboardFilters();
+  
+  // Refresh data and maps
+  DDS.dashboard.refreshDashboard();
+  
+  // Auto update online banner
+  DDS.ui.updateOfflineBanner();
 });
 
-}
-
-//////////////////////////////////////////////////////////
-// RECENT REPORTS
-//////////////////////////////////////////////////////////
-
-function renderRecent(data){
-
-const div =
-document.getElementById("recentReports");
-
-div.innerHTML="";
-
-data
-.slice(-5)
-.reverse()
-.forEach(r=>{
-
-div.innerHTML+=`
-
-<div class="report-item">
-
-<b>${r.id}</b>
-
-${r.structure}
-
-${r.city}
-
-(${r.assignedTo})
-
-</div>
-
-`;
-
+// Auto-refresh when localStorage updates (e.g. synchronization occurs)
+window.addEventListener("storage", () => {
+  DDS.dashboard.refreshDashboard();
 });
 
+// Map mode tabs toggle
+function switchMapMode(mode) {
+  const damageMapDiv = document.getElementById("damageMap");
+  const trafficMapDiv = document.getElementById("trafficMap");
+  const damageBtn = document.getElementById("damageBtn");
+  const trafficBtn = document.getElementById("trafficBtn");
+
+  if (mode === "damage") {
+    damageMapDiv.style.display = "block";
+    trafficMapDiv.style.display = "none";
+    damageBtn.classList.add("active");
+    trafficBtn.classList.remove("active");
+    damageBtn.setAttribute("aria-selected", "true");
+    trafficBtn.setAttribute("aria-selected", "false");
+    
+    // Invalidate size to ensure Leaflet maps redraw properly after display change
+    if (DDS.maps.damageMapInstance) {
+      DDS.maps.damageMapInstance.invalidateSize();
+    }
+  } else {
+    damageMapDiv.style.display = "none";
+    trafficMapDiv.style.display = "block";
+    damageBtn.classList.remove("active");
+    trafficBtn.classList.add("active");
+    damageBtn.setAttribute("aria-selected", "false");
+    trafficBtn.setAttribute("aria-selected", "true");
+    
+    if (DDS.maps.trafficMapInstance) {
+      DDS.maps.trafficMapInstance.invalidateSize();
+    }
+  }
 }
 
-//////////////////////////////////////////////////////////
-// CHARTS
-//////////////////////////////////////////////////////////
-
-function renderCharts(data){
-
-const sev = {
-Low:0,
-Moderate:0,
-High:0,
-VeryHigh:0,
-Critical:0
-};
-
-data.forEach(
-x=>sev[x.severity]++
-);
-
-new Chart(
-document
-.getElementById("severityChart"),
-{
-type:"pie",
-data:{
-labels:Object.keys(sev),
-datasets:[{
-data:Object.values(sev)
-}]
-}
-}
-);
-
-new Chart(
-document
-.getElementById("costChart"),
-{
-type:"bar",
-data:{
-labels:
-data.slice(0,10)
-.map(x=>x.id),
-datasets:[{
-label:"Cost",
-data:
-data.slice(0,10)
-.map(x=>x.finalCost||0)
-}]
-}
-}
-);
-
+// Cascading filters in dashboard page
+function applyDashboardFilters() {
+  DDS.dashboard.refreshDashboard();
 }
 
-//////////////////////////////////////////////////////////
-// MAPS
-//////////////////////////////////////////////////////////
-
-function renderMaps(data){
-
-let cluster =
-L.markerClusterGroup();
-
-let heat=[];
-
-data.forEach(r=>{
-
-let lat =
-r.lat || 20.5937;
-
-let lng =
-r.lng || 78.9629;
-
-let marker =
-L.marker([lat,lng]);
-
-marker.bindPopup(
-
-`
-<b>${r.structure}</b>
-
-<br>
-
-${r.city}
-
-<br>
-
-Severity:
-${r.severity}
-
-<br>
-
-Cost:
-₹${r.finalCost}
-
-<br>
-
-Assigned:
-${r.assignedTo}
-
-`
-);
-
-cluster.addLayer(marker);
-
-heat.push([
-lat,
-lng,
-Math.random()
-]);
-
-});
-
-damageMap.eachLayer(x=>{
-if(x!==osm)
-damageMap.removeLayer(x);
-});
-
-damageMap.addLayer(cluster);
-
-trafficMap.eachLayer(x=>{
-if(x!==osm)
-trafficMap.removeLayer(x);
-});
-
-L.heatLayer(
-heat,
-{
-radius:25
+function resetDashboardFilters() {
+  document.getElementById("stateFilter").value = "";
+  document.getElementById("districtFilter").value = "";
+  document.getElementById("cityFilter").value = "";
+  DDS.ui.populateDashboardFilters();
+  DDS.dashboard.refreshDashboard();
 }
-).addTo(
-trafficMap
-);
-
-combinedMap.eachLayer(x=>{
-if(x!==osm)
-combinedMap.removeLayer(x);
-});
-
-combinedMap.addLayer(cluster);
-
-L.heatLayer(
-heat,
-{
-radius:20
-}
-).addTo(
-combinedMap
-);
-
-}
-
-//////////////////////////////////////////////////////////
-// STORAGE LISTENER
-//////////////////////////////////////////////////////////
-
-window.addEventListener(
-"storage",
-refreshDashboard
-);
-
-//////////////////////////////////////////////////////////
-// OFFLINE BANNER
-//////////////////////////////////////////////////////////
-
-function updateOnline(){
-
-document
-.getElementById("offlineBanner")
-.style.display =
-navigator.onLine
-? "none"
-: "block";
-
-}
-
-window.addEventListener(
-"online",
-updateOnline
-);
-
-window.addEventListener(
-"offline",
-updateOnline
-);
-
-updateOnline();
-
-//////////////////////////////////////////////////////////
-// SW
-//////////////////////////////////////////////////////////
-
-if(location.protocol ==="http:"
-    || location.protocol === "https:"
-){
-
-navigator.serviceWorker
-.register("sw.js");
-
-}
-
-//////////////////////////////////////////////////////////
-// INIT
-//////////////////////////////////////////////////////////
-
-refreshDashboard();
-
 </script>
-<script
-src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src=""script.js"></script>
-<script 
-src ="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<div id="cursor-glow"></div>
 </body>
 </html>

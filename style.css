@@ -2552,3 +2552,265 @@ margin:8px 0;
 
 }
 
+/* ==========================================
+   MANAGEMENT VIEW MODES & TABS
+========================================== */
+.mode-tabs {
+  display: flex;
+  gap: 8px;
+  background: rgba(17, 24, 39, 0.4);
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tab-btn {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #9ca3af;
+  background: transparent;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+}
+
+.header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* ==========================================
+   WORKLOAD & ALLOCATION
+========================================== */
+.workload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.workload-item {
+  text-align: center;
+  background: rgba(31, 41, 55, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+}
+
+.workload-item h4 {
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+/* ==========================================
+   GLOWING STATUS DOTS
+========================================== */
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.yellow-dot { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+.orange-dot { background: #f97316; box-shadow: 0 0 8px #f97316; }
+.green-dot { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+
+/* ==========================================
+   ALERTS & NOTIFICATIONS
+========================================== */
+.notification-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 250px;
+}
+
+.alert-list-container {
+  overflow-y: auto;
+  flex-grow: 1;
+  margin-top: 10px;
+}
+
+.alert-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alert-list li {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  border-left: 4px solid transparent;
+}
+
+.alert-red {
+  background: rgba(220, 38, 38, 0.1);
+  border-left-color: #dc2626 !important;
+  color: #fca5a5;
+}
+
+.alert-orange {
+  background: rgba(245, 158, 11, 0.1);
+  border-left-color: #f59e0b !important;
+  color: #fde047;
+}
+
+/* ==========================================
+   GRID COMBINATIONS
+========================================== */
+.grid-large-small {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 20px;
+}
+
+@media(max-width:1024px) {
+  .grid-large-small {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   HEATMAP CELL HIGHLIGHTS
+========================================== */
+.bg-green-light { background-color: rgba(34, 197, 94, 0.15) !important; color: #4ade80 !important; font-weight: bold; }
+.bg-blue-light { background-color: rgba(59, 130, 246, 0.15) !important; color: #60a5fa !important; font-weight: bold; }
+.bg-yellow-light { background-color: rgba(234, 179, 8, 0.15) !important; color: #fde047 !important; font-weight: bold; }
+.bg-orange-light { background-color: rgba(249, 115, 22, 0.15) !important; color: #ffedd5 !important; font-weight: bold; }
+.bg-red-light { background-color: rgba(239, 68, 68, 0.15) !important; color: #fca5a5 !important; font-weight: bold; }
+
+/* ==========================================
+   UTILITY STYLES
+========================================== */
+.empty-state {
+  text-align: center;
+  color: #9ca3af;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.flex-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.flex-end-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.text-danger { color: #f87171 !important; }
+.text-warning { color: #fbbf24 !important; }
+.text-success { color: #34d399 !important; }
+.text-muted { color: #6b7280 !important; }
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  transition: transform 0.2s;
+}
+
+.btn-icon:hover {
+  transform: scale(1.15);
+}
+
+.btn-small {
+  padding: 5px 10px !important;
+  font-size: 11px !important;
+  border-radius: 6px !important;
+}
+
+.status-inline-select,
+.assignee-inline-select {
+  padding: 6px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+  background: rgba(31, 41, 55, 0.6);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: auto;
+}
+
+/* Scrollbars styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(17, 24, 39, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.chart-container {
+  position: relative;
+  height: 250px;
+  width: 100%;
+}
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.map-tab {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  background: rgba(31, 41, 55, 0.4);
+  color: #9ca3af;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+}
+
+.map-tab.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
+}
+
+.map-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}

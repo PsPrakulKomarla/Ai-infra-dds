@@ -12,10 +12,9 @@ const urlsToCache = [
   "index.html",
   "dashboard.html",
   "inspect.html",
-  "reports.html",
-  "kanban.html",
+  "management.html",
   "style.css",
-  "script-enhanced.js",
+  "script.js",
   "sw.js"
 ];
 
